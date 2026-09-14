@@ -53,6 +53,13 @@ function fetchJSON<ResponseData>(url: string, callback: Callback<ResponseData>):
 
     request.on ('error', (err) => {
         callback(new Error(`Network error while requesting ${url}: ${err.message}`))
-    })
+    });
 }
 
+function fetchWeather(callback: Callback<WeatherResponse>): void{
+    fetchJSON<WeatherResponse>(WEATHER_URL, callback);
+}
+
+function fetchNews(callback: Callback<NewsResponse>): void{
+    fetchJSON<NewsResponse>(NEWS_URL, callback);
+}
