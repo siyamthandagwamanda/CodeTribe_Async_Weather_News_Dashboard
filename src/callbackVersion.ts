@@ -18,3 +18,7 @@ interface Post{
     id: number;
     title: string;
 }
+
+interface NewsResponse{
+    posts: Post[];
+}
