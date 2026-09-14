@@ -84,3 +84,26 @@ function displayResults(weather: WeatherResponse, news: NewsResponse): void {
 
     console.log('======================\n');
 }
+
+function displayError(context: string, error: Error): void{
+    console.error(`[ERROR] (${context}) (${error.message})`)
+}
+
+console.log('Fetching weather (callback style)....');
+
+fetchWeather((weatherErr, weather) => {
+    if(weatherErr){
+        displayError('Weather', weatherErr);
+        return;
+    }
+
+    console.log('Weather received. Now fetching news (nested callbacks)....');
+    fetchNews((newsErr, news) => {
+        if (newsErr){
+            displayError('News', newsErr);
+            return;
+        }
+
+        displayResults(weather as WeatherResponse, news as NewsResponse);
+    });
+});
