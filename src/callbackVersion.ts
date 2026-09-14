@@ -65,7 +65,7 @@ function fetchNews(callback: Callback<NewsResponse>): void{
 }
 
 function displayResults(weather: WeatherResponse, news: NewsResponse): void {
-    console.log('\n===== Callback Version Results =====');
+    console.log('\n======= Callback Version Results =============');
     
   
     console.log(`Current temperature: ${weather.current_weather.temperature}°C, wind ${weather.current_weather.windspeed} km/h`);
@@ -82,7 +82,7 @@ function displayResults(weather: WeatherResponse, news: NewsResponse): void {
         console.error("Failed to display news posts:", error instanceof Error ? error.message : error);
     }
 
-    console.log('======================\n');
+    console.log('===============================================\n');
 }
 
 function displayError(context: string, error: Error): void{
