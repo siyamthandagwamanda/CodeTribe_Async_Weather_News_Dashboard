@@ -89,7 +89,7 @@ function displayError(context: string, error: Error): void{
     console.error(`[ERROR] (${context}) (${error.message})`)
 }
 
-console.log('Fetching weather (callback style)....');
+console.log('Fetching Pietermaritzburg weather (callback style)....');
 
 fetchWeather((weatherErr, weather) => {
     if(weatherErr){
@@ -97,7 +97,8 @@ fetchWeather((weatherErr, weather) => {
         return;
     }
 
-    console.log('Weather received. Now fetching news (nested callbacks)....');
+    console.log('Weather received. Now fetching dummy news (nested callbacks)....');
+
     fetchNews((newsErr, news) => {
         if (newsErr){
             displayError('News', newsErr);
