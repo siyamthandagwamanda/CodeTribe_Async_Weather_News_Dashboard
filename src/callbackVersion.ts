@@ -61,5 +61,26 @@ function fetchWeather(callback: Callback<WeatherResponse>): void{
 }
 
 function fetchNews(callback: Callback<NewsResponse>): void{
-    fetchJSON<NewsResponse>(NEWS_URL, callback);
+    fetchJSON<NewsResponse>(NEWS_URL, callback)
+}
+
+function displayResults(weather: WeatherResponse, news: NewsResponse): void {
+    console.log('\n===== Callback Version Results =====');
+    
+  
+    console.log(`Current temperature: ${weather.current_weather.temperature}°C, wind ${weather.current_weather.windspeed} km/h`);
+
+    console.log('Latest headlines:');
+    
+    try {
+        news.posts
+            .slice(0, 5)
+            .map((post, i) => ` ${i + 1}. ${post.title}`)
+            .forEach((item) => console.log(item)); 
+          
+    } catch (error) {
+        console.error("Failed to display news posts:", error instanceof Error ? error.message : error);
+    }
+
+    console.log('======================\n');
 }
