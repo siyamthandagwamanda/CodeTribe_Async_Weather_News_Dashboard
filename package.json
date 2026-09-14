@@ -7,7 +7,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "callback": "ts-node src/callbackVersion.ts"
+    "callback": "tsx src/callbackVersion.ts"
   },
   "keywords": [],
   "author": "",
