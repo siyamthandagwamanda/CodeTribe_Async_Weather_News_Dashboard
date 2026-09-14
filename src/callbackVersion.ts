@@ -14,3 +14,7 @@ interface WeatherResponse{
     }
 }
 
+interface Post{
+    id: number;
+    title: string;
+}
