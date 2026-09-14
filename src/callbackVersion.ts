@@ -1,6 +1,6 @@
 import https from 'https'
 
-type Callback<ResponseData> = (error: Error | null, data?: T) => void;
+type Callback<ResponseData> = (error: Error | null, data?: ResponseData) => void;
 
 const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=-29.6168&longitude=30.3928&current_weather=true';
 
@@ -22,3 +22,4 @@ interface Post{
 interface NewsResponse{
     posts: Post[];
 }
+
