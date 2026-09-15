@@ -48,5 +48,9 @@ function fetchJSON<ResponseData>(url: string): Promise<ResponseData>{
                 }
             });
         });
-    })
+        
+        request.on('error', (err) => {
+            reject(new Error(`Network error while requesting ${url}: ${err.message}`))
+        });
+    });
 }
