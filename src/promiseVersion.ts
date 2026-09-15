@@ -94,9 +94,17 @@ fetchWeather()
     .catch((err) => displayError('Chained', err))
 
     .then(() => {
+        console.log('[Promise.all] Fetching weather + news concurrently...');
+        return Promise.all([fetchWeather(), fetchNews()]);
+    })
+    .then(([weather, news]) => displayResults('PROMISE.ALL (CONCURRENT)', weather, news))
+    .catch((err) => displayError('Promise.all', err))
+
+    .then(() => {
         console.log('[Promise.race] Racing weather vs news...');
         return Promise.race([
             fetchWeather().then((data) => ({ source: 'weather', data})),
             fetchNews().then((data) => ({source: 'news', data})),
         ]);
     })
+    
