@@ -6,7 +6,7 @@ const WEATHER_URL =  'https://api.open-meteo.com/v1/forecast?latitude=-29.6168&l
 const NEWS_URL = 'https://dummyjson.com/posts?limit=5';
 
 interface WeatherResponse{
-    currrent_weather: {
+    current_weather: {
         temperature: number;
         windspeed: number;
         weathercode: number;
