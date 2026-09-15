@@ -107,4 +107,9 @@ fetchWeather()
             fetchNews().then((data) => ({source: 'news', data})),
         ]);
     })
-    
+    .then((winner) => {
+        console.log('\n================ PROMISE.RACE RESULT ==============');
+        console.log(`Fastest response came from ${winner.source}`)
+        console.log('=====================================================')
+    })
+    .catch((err) => displayError('Promise.race', err))
