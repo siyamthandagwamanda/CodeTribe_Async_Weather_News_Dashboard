@@ -1,6 +1,7 @@
 import http from 'https';
 import { resolve } from 'path';
 
+
 const WEATHER_URL =  'https://api.open-meteo.com/v1/forecast?latitude=-29.6168&longitude=30.3928&current_weather=true';
 
 const NEWS_URL = 'https://dummyjson.com/posts?limit=5';
@@ -25,6 +26,27 @@ interface NewsResponse{
 
 function fetchJSON<ResponseData>(url: string): Promise<ResponseData>{
     return new Promise ((resolve, reject) => {
-        
+        const request = http.get(url, (res) => {
+            const {statusCode} = res;
+            let raw = '';
+
+            if (statusCode && (statusCode < 200 || statusCode >= 300)){
+                res.resume();
+                reject(new Error (`Request to ${url} failed with status code ${statusCode}`));
+                return;
+            }
+
+            res.setEncoding('utf8');
+            res.on('data', (chunk) => {
+                raw += chunk
+            });
+            res.on('end', () => {
+                try{
+                    resolve(JSON.parse(raw) as ResponseData);
+                }catch (err){
+                    reject(new Error (`Failed to parse JSON from ${url}: ${(err as Error).message}`))
+                }
+            });
+        });
     })
 }
