@@ -87,3 +87,8 @@ function displayError(context: string, error: unknown): void{
     const message = error instanceof Error ? error.message : String(error);
     console.error(`[ERROR] (${context}) ${message}`)
 }
+
+console.log('[Chained] Fetching weather, then news....');
+fetchWeather()
+    .then((weather) => fetchNews().then((news) => displayResults('CHAINED PROMISES', weather, news)))
+    .catch((err) => displayError('Chained', err))
