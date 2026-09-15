@@ -92,3 +92,11 @@ console.log('[Chained] Fetching weather, then news....');
 fetchWeather()
     .then((weather) => fetchNews().then((news) => displayResults('CHAINED PROMISES', weather, news)))
     .catch((err) => displayError('Chained', err))
+
+    .then(() => {
+        console.log('[Promise.race] Racing weather vs news...');
+        return Promise.race([
+            fetchWeather().then((data) => ({ source: 'weather', data})),
+            fetchNews().then((data) => ({source: 'news', data})),
+        ]);
+    })
