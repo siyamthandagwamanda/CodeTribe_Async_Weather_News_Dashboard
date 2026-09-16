@@ -86,7 +86,7 @@ function displayError(context: string, error: unknown): void{
     console.error(`[ERROR] (${context}) ${message}`)
 }
 
-async function runConcurrent(): Promise<void>{
+async function runSequential(): Promise<void>{
     console.log(`[Sequential await] Fetching weather, then news...`);
     try{
         const weather = await fetchWeather();
@@ -96,3 +96,38 @@ async function runConcurrent(): Promise<void>{
         displayError('sequential', err);
     }
 }
+
+async function runConcurrent(): Promise<void>{
+    console.log('[Promise.all + await] Fetching weather + news concurrently...');
+    try{
+        const [weather, news] = await Promise.all([fetchWeather(), fetchNews()]);
+        displayResults(' CONCURRENT ASYNC/AWAIT (Promise.all)', weather, news);
+    }catch (err){
+        displayError('Concurrent', err);
+    }
+}
+
+async function runRace(): Promise<void>{
+    console.log('[Promise.race + await] Racing weather vs news....');
+    try{
+    
+    const winner = await Promise.race([
+        fetchWeather().then((data) => ({ source: 'weather', data})),
+        fetchNews().then((data) => ({ source: 'news', data})),
+    ]);
+    console.log('\n====== PROMISE.RACE RESULTS (ASYNC/AWAIT) =======');
+    console.log(`Fatest response came from: ${winner.source}`);
+    console.log('=================================================')
+
+    }catch (err){
+        displayError('Race', err)
+    }
+}
+
+async function main(): Promise<void>{
+    await runSequential();
+    await runConcurrent();
+    await runRace();
+}
+
+main();
