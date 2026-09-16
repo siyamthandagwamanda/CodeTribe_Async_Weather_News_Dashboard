@@ -14,6 +14,11 @@ interface WeatherResponse{
     }
 }
 
+
+//To test: Requesting Hourly Data
+//To  test: Requesting Daily Data
+
+
 interface Post{
     id: number;
     title: string;

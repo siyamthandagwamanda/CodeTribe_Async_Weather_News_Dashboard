@@ -16,6 +16,9 @@ interface WeatherResponse{
     }
 }
 
+//To test: Requesting Hourly Data
+//To  test: Requesting Daily Data
+
 interface Post{
     id: number;
     title: string;
@@ -63,6 +66,10 @@ function fetchWeather(callback: Callback<WeatherResponse>): void{
 function fetchNews(callback: Callback<NewsResponse>): void{
     fetchJSON<NewsResponse>(NEWS_URL, callback)
 }
+
+
+//To test: Updating your displayResults Function
+//ecause the payload will now contain arrays rather than a single
 
 function displayResults(weather: WeatherResponse, news: NewsResponse): void {
     console.log('\n======= Callback Version Results =============');
