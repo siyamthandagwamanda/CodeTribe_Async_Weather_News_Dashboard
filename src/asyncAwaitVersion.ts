@@ -1,4 +1,5 @@
 import http from 'https';
+import { resolve } from 'path';
 
 const WEATHER_URL =  'https://api.open-meteo.com/v1/forecast?latitude=-29.6168&longitude=30.3928&current_weather=true';
 
@@ -22,3 +23,10 @@ interface NewsResponse{
     posts: Post[];
 }
 
+function fetchJSON<ResponseData>(url: string): Promise<ResponseData>{
+    return new Promise ((resolve, reject) => {
+        const request = http.get(url, (res) => {
+            
+        })
+    })
+}
