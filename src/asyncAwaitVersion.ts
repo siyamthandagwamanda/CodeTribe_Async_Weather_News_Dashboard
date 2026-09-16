@@ -53,3 +53,11 @@ function fetchJSON<ResponseData>(url: string): Promise<ResponseData>{
         });
     });
 }
+
+function fetchWeather(): Promise<WeatherResponse>{
+    return fetchJSON<WeatherResponse>(WEATHER_URL);
+}
+
+function fetchNews(): Promise<NewsResponse>{
+    return fetchJSON<NewsResponse>(NEWS_URL);
+}
