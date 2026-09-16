@@ -63,5 +63,25 @@ function fetchNews(): Promise<NewsResponse>{
 }
 
 function displayResults(label: string, weather: WeatherResponse, news: NewsResponse): void{
+    console.log(`\n========== ${label} ===========`);
+    console.log(
+        `Current temperature: ${weather.current_weather.temperature}°C, wind ${weather.current_weather.windspeed} km/h`
+    );
+    console.log('Latest headlines: ');
+
+    try{
     
+    news?.posts
+       ?.slice(0, 5)
+       .map((post, i) => `${i + 1}. ${post.title}`)
+       .forEach((item) => console.log(item));
+    }catch (error){
+    
+    console.log(`${'='.repeat(label.length + 12)}\n`);
+    }
+}
+
+function displayError(context: string, error: unknown): void{
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[ERROR] (${context}) ${message}`)
 }
