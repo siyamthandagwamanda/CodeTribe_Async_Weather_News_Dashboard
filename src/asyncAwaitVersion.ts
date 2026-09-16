@@ -85,3 +85,14 @@ function displayError(context: string, error: unknown): void{
     const message = error instanceof Error ? error.message : String(error);
     console.error(`[ERROR] (${context}) ${message}`)
 }
+
+async function runConcurrent(): Promise<void>{
+    console.log(`[Sequential await] Fetching weather, then news...`);
+    try{
+        const weather = await fetchWeather();
+        const news = await fetchNews();
+        displayResults('SEQUENTIAL ASYNC/AWAIT', weather, news);
+    }catch(err){
+        displayError('sequential', err);
+    }
+}
