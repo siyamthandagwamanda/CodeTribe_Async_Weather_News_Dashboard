@@ -61,3 +61,7 @@ function fetchWeather(): Promise<WeatherResponse>{
 function fetchNews(): Promise<NewsResponse>{
     return fetchJSON<NewsResponse>(NEWS_URL);
 }
+
+function displayResults(label: string, weather: WeatherResponse, news: NewsResponse): void{
+    
+}
