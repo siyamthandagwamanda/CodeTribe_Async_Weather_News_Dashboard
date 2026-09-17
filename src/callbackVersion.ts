@@ -1,18 +1,26 @@
-import https from 'https'
+import { error } from 'console';
+import * as https from 'https'
 
 type Callback<ResponseData> = (error: Error | null, data?: ResponseData) => void;
 
-const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=-29.6168&longitude=30.3928&current_weather=true';
+const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=-29.6168&longitude=30.3928&hourly=temperature_2m?limit=3';
 
 const NEWS_URL = 'https://dummyjson.com/posts?limit=5';
 
+// interface WeatherResponse{
+//     current_weather:
+//     {
+//         temperature: number;
+//         windspeed: number;
+//         weathercode: number;
+//         time: string;
+//     }
+// }
+
 interface WeatherResponse{
-    current_weather:
-    {
-        temperature: number;
-        windspeed: number;
-        weathercode: number;
-        time: string;
+    hourly: {
+        time: string[];
+        temperature_2m: number[];
     }
 }
 
@@ -74,8 +82,22 @@ function fetchNews(callback: Callback<NewsResponse>): void{
 function displayResults(weather: WeatherResponse, news: NewsResponse): void {
     console.log('\n======= Callback Version Results =============');
     
+    console.log('Hourly Weather Forecast: ');
+    try{
+        if (weather.hourly && weather.hourly.time){
+
+            weather.hourly.time.slice(0, 5).forEach((timeStr, i) => {
+                const temp = weather.hourly.temperature_2m[i];
+                console.log(` ${timeStr}: ${temp}°C`);
+            });
+        }else{
+            console.log('No hourly weather data found.')
+        }
+    }catch (error){
+        console.error("Failed to display weather data:", error instanceof Error ? error.message : error);
+    }
   
-    console.log(`Current temperature: ${weather.current_weather.temperature}°C, wind ${weather.current_weather.windspeed} km/h`);
+    // console.log(`Current temperature: ${weather.current_weather.temperature}°C, wind ${weather.current_weather.windspeed} km/h`);
 
     console.log('Latest headlines:');
     
