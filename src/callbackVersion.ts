@@ -1,139 +1,54 @@
-import { error } from 'console';
-import * as https from 'https'
+import { log } from "console";
+import http from "https";
 
-type Callback<ResponseData> = (error: Error | null, data?: ResponseData) => void;
+function fetchWeatherData(city: string, callback: (data: any) => void): void {
+  const apiKey = "YOUR_API_KEY";
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&hourly=temperature_2m`;
 
-const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=-29.6168&longitude=30.3928&hourly=temperature_2m?limit=3';
-
-const NEWS_URL = 'https://dummyjson.com/posts?limit=5';
-
-// interface WeatherResponse{
-//     current_weather:
-//     {
-//         temperature: number;
-//         windspeed: number;
-//         weathercode: number;
-//         time: string;
-//     }
-// }
-
-interface WeatherResponse{
-    hourly: {
-        time: string[];
-        temperature_2m: number[];
-    }
-}
-
-//To test: Requesting Hourly Data
-//To  test: Requesting Daily Data
-
-interface Post{
-    id: number;
-    title: string;
-}
-
-interface NewsResponse{
-    posts: Post[];
-}
-
-function fetchJSON<ResponseData>(url: string, callback: Callback<ResponseData>): void{
-    const request = https.get(url, (res) => {
-        const {statusCode} = res;
-        let raw = '';
-
-        if (statusCode && (statusCode < 200 || statusCode >= 300)){
-            res.resume();
-            callback(new Error (`Request to ${url} failed with status code ${statusCode}`));
-            return;
-        }
-
-        res.setEncoding('utf8');
-
-        res.on('data', (chunk) => {
-            raw += chunk;
-        });
-
-        res.on('end', () => {
-            try{
-                callback(null, JSON.parse(raw) as ResponseData)
-            }catch(err){
-                callback(new Error (`Failed to parse JSON from ${url}: ${(err as Error).message}`))
-            }
-        });
-    });
-
-    request.on ('error', (err) => {
-        callback(new Error(`Network error while requesting ${url}: ${err.message}`))
+  http
+    .get(url, (res) => {
+      let data = "";
+      res.on("data", (chunk) => {
+        data += chunk;
+      });
+      res.on("end", () => {
+        callback(JSON.parse(data));
+      });
+    })
+    .on("error", (err) => {
+      console.error(err);
+      callback(null);
     });
 }
 
-function fetchWeather(callback: Callback<WeatherResponse>): void{
-    fetchJSON<WeatherResponse>(WEATHER_URL, callback);
-}
-
-function fetchNews(callback: Callback<NewsResponse>): void{
-    fetchJSON<NewsResponse>(NEWS_URL, callback)
-}
-
-
-//To test: Updating your displayResults Function
-//ecause the payload will now contain arrays rather than a single
-
-function displayResults(weather: WeatherResponse, news: NewsResponse): void {
-    console.log('\n======= Callback Version Results =============');
-    
-    console.log('Hourly Weather Forecast: ');
-    try{
-        if (weather.hourly && weather.hourly.time){
-
-            weather.hourly.time.slice(0, 5).forEach((timeStr, i) => {
-                const temp = weather.hourly.temperature_2m[i];
-                console.log(` ${timeStr}: ${temp}°C`);
-            });
-        }else{
-            console.log('No hourly weather data found.')
-        }
-    }catch (error){
-        console.error("Failed to display weather data:", error instanceof Error ? error.message : error);
-    }
-  
-    // console.log(`Current temperature: ${weather.current_weather.temperature}°C, wind ${weather.current_weather.windspeed} km/h`);
-
-    console.log('Latest headlines:');
-    
-    try {
-        news.posts
-            .slice(0, 5)
-            .map((post, i) => ` ${i + 1}. ${post.title}`)
-            .forEach((item) => console.log(item)); 
-          
-    } catch (error) {
-        console.error("Failed to display news posts:", error instanceof Error ? error.message : error);
-    }
-
-    console.log('===============================================\n');
-}
-
-function displayError(context: string, error: Error): void{
-    console.error(`[ERROR] (${context}) (${error.message})`)
-}
-
-console.log('Fetching Pietermaritzburg weather (callback style)....');
-
-fetchWeather((weatherErr, weather) => {
-    if(weatherErr){
-        displayError('Weather', weatherErr);
-        return;
-    }
-
-    console.log('Weather received. Now fetching dummy news (nested callbacks)....');
-
-    fetchNews((newsErr, news) => {
-        if (newsErr){
-            displayError('News', newsErr);
-            return;
-        }
-
-        displayResults(weather as WeatherResponse, news as NewsResponse);
+function fetchNews(callback: (data: any) => void): void {
+  const apiKey = "YOUR_API_KEY";
+  const url = `https://dummyjson.com/posts`;
+  http
+    .get(url, (res) => {
+      let data = "";
+      res.on("data", (chunk) => {
+        data += chunk;
+      });
+      res.on("end", () => {
+        callback(JSON.parse(data));
+      });
+    })
+    .on("error", (err) => {
+      console.error(err);
+      callback(null);
     });
+}
+
+// Example Usage
+
+fetchWeatherData("London", (weatherData) => {
+  if (weatherData) {
+    log("Weather Data:", weatherData);
+    fetchNews((newsData) => {
+      if (newsData) {
+        log("News Data:", newsData);
+      }
+    });
+  }
 });
