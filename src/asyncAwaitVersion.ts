@@ -42,6 +42,7 @@ async function geocodeCity(
 }
 
 // Refactor Promise code to use async/await
+
 export async function fetchWeatherData(
   city: string
 ): Promise<{ data: any; cityName: string; error?: string }> {
@@ -99,6 +100,7 @@ export async function fetchNews(): Promise<any> {
 }
 
 // Example usage:
+
 async function displayData() {
   try {
     const city = process.argv[2] || "Durban";

@@ -40,6 +40,8 @@ function fetchNews(callback: (data: any) => void): void {
     });
 }
 
+// Example usage:
+
 fetchWeatherData("London", (weatherData) => {
   if (weatherData) {
     log("Weather Data:", weatherData);
@@ -51,4 +53,3 @@ fetchWeatherData("London", (weatherData) => {
   }
 });
 
-// Example usage:
