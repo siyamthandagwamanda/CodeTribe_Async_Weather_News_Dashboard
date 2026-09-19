@@ -5,19 +5,18 @@
   "description": "<img src=\"https://socialify.git.ci/siyamthandagwamanda/CodeTribe_Async_Weather_News_Dashboard/image?language=1&owner=1&name=1&stargazers=1&theme=Light\" alt=\"CodeTribe_Async_Weather_News_Dashboard\" width=\"640\" height=\"320\" />",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "callback": "tsx src/callbackVersion.ts",
-    "promise": "tsx src/promiseVersion.ts",
-    "asyncAwait": "tsx src/asyncAwaitVersion.ts"
+    "callback": "ts-node src/callbackVersion.ts",
+    "promise": "ts-node src/promiseVersion.ts",
+    "asyncAwait": "ts-node src/asyncAwaitVersion.ts",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^22.20.2",
+    "@types/node": "^22.20.4",
     "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",
-    "tsx": "^4.23.13",
-    "typescript": "^7.0.2"
+    "typescript": "^.0.2"
   }
 }

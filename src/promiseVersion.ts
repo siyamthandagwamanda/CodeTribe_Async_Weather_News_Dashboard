@@ -1,120 +1,74 @@
-import http from 'https';
-import { resolve } from 'path';
+import http from "https";
 
-
-const WEATHER_URL =  'https://api.open-meteo.com/v1/forecast?latitude=-29.6168&longitude=30.3928&current_weather=true';
-
-const NEWS_URL = 'https://dummyjson.com/posts?limit=5';
-
-interface WeatherResponse{
-    current_weather: {
-        temperature: number;
-        windspeed: number;
-        weathercode: number;
-        time: string;
-    }
-}
-
-
-//To test: Requesting Hourly Data
-//To  test: Requesting Daily Data
-
-
-interface Post{
-    id: number;
-    title: string;
-}
-
-interface NewsResponse{
-    posts: Post[];
-}
-
-function fetchJSON<ResponseData>(url: string): Promise<ResponseData>{
-    return new Promise ((resolve, reject) => {
-        const request = http.get(url, (res) => {
-            const {statusCode} = res;
-            let raw = '';
-
-            if (statusCode && (statusCode < 200 || statusCode >= 300)){
-                res.resume();
-                reject(new Error (`Request to ${url} failed with status code ${statusCode}`));
-                return;
-            }
-
-            res.setEncoding('utf8');
-            res.on('data', (chunk) => {
-                raw += chunk
-            });
-            res.on('end', () => {
-                try{
-                    resolve(JSON.parse(raw) as ResponseData);
-                }catch (err){
-                    reject(new Error (`Failed to parse JSON from ${url}: ${(err as Error).message}`))
-                }
-            });
+export function fetchWeatherData(city: string): Promise<any> {
+  const apiKey = "YOUR_API_KEY";
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&hourly=temperature_2m`;
+  return new Promise((resolve, reject) => {
+    http
+      .get(url, (res) => {
+        let data = "";
+        res.on("data", (chunk) => {
+          data += chunk;
         });
-        
-        request.on('error', (err) => {
-            reject(new Error(`Network error while requesting ${url}: ${err.message}`))
+        res.on("end", () => {
+          resolve(JSON.parse(data));
         });
-    });
+      })
+      .on("error", (err) => {
+        console.error(err);
+        reject(err);
+      });
+  });
+}
+export function fetchNews(): Promise<any> {
+  const apiKey = "YOUR_API_KEY";
+  const url = `https://dummyjson.com/posts`;
+  return new Promise((resolve, reject) => {
+    http
+      .get(url, (res) => {
+        let data = "";
+        res.on("data", (chunk) => {
+          data += chunk;
+        });
+        res.on("end", () => {
+          resolve(JSON.parse(data));
+        });
+      })
+      .on("error", (err) => {
+        console.error(err);
+        reject(err);
+      });
+  });
 }
 
-function fetchWeather(): Promise<WeatherResponse>{
-    return fetchJSON<WeatherResponse>(WEATHER_URL);
-}
+// Example usage:
 
-function fetchNews(): Promise<NewsResponse>{
-    return fetchJSON<NewsResponse>(NEWS_URL);
-}
+fetchWeatherData("London")
+  .then((weatherData) => {
+    console.log("Weather Data:", weatherData);
+    return fetchNews();
+  })
+  .then((newsData) => {
+    console.log("News Data:", newsData);
+  })
+  .catch((error) => {
+    console.error("Error:", error);
+  });
 
-function displayResults(label: string, weather: WeatherResponse, news: NewsResponse): void{
-    console.log(`\n================= ${label} =================`);
-    console.log(
-        `Current temperature: ${weather.current_weather.temperature}°C, wind ${weather.current_weather.windspeed} km/h`
-    );
-    console.log('Latest headlines: ');
-    
-    try {
-   
-    news?.posts
-        ?.slice(0, 5)
-        .map((post, i) => ` ${i + 1}. ${post.title}`)
-        .forEach((item) => console.log(item)); 
-        
-    } catch (errorr) {
-    
-    console.log(`${'='.repeat(label.length + 12)}\n`);
-    }
-}
+// Implement Promise.all() and Promise.race()
 
-function displayError(context: string, error: unknown): void{
-    const message = error instanceof Error ? error.message : String(error);
-    console.error(`[ERROR] (${context}) ${message}`)
-}
-
-console.log('[Chained] Fetching weather, then news....');
-fetchWeather()
-    .then((weather) => fetchNews().then((news) => displayResults('CHAINED PROMISES', weather, news)))
-    .catch((err) => displayError('Chained', err))
-
-    .then(() => {
-        console.log('[Promise.all] Fetching weather + news concurrently...');
-        return Promise.all([fetchWeather(), fetchNews()]);
-    })
-    .then(([weather, news]) => displayResults('PROMISE.ALL (CONCURRENT)', weather, news))
-    .catch((err) => displayError('Promise.all', err))
-
-    .then(() => {
-        console.log('[Promise.race] Racing weather vs news...');
-        return Promise.race([
-            fetchWeather().then((data) => ({ source: 'weather', data})),
-            fetchNews().then((data) => ({source: 'news', data})),
-        ]);
-    })
-    .then((winner) => {
-        console.log('\n================ PROMISE.RACE RESULT ==============');
-        console.log(`Fastest response came from ${winner.source}`)
-        console.log('=====================================================')
-    })
-    .catch((err) => displayError('Promise.race', err))
+Promise.all([fetchWeatherData("London"), fetchNews()])
+  .then(([weatherData, newsData]) => {
+    console.log("Promise.all - Weather Data:", weatherData);
+    console.log("Promise.all - News Data:", newsData);
+  })
+  .catch((error) => {
+    console.error("Promise.all Error:", error);
+  });
+Promise.race([fetchWeatherData("London"), fetchNews()])
+  .then((firstData) => {
+    console.log("Promise.race - First Data:", firstData);
+  })
+  .catch((error) => {
+    console.error("Promise.race Error:", error);
+  });

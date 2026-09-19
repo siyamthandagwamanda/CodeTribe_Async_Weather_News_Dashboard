@@ -1,138 +1,130 @@
-import http from 'https';
-import { resolve } from 'path';
+import http from "https";
 
-const WEATHER_URL =  'https://api.open-meteo.com/v1/forecast?latitude=-29.6168&longitude=30.3928&current_weather=true';
-
-const NEWS_URL = 'https://dummyjson.com/posts?limit=5';
-
-interface WeatherResponse{
-    current_weather: {
-        temperature: number;
-        windspeed: number;
-        weathercode: number;
-        time: string;
-    }
-}
-
-
-//To test: Requesting Hourly Data
-//To  test: Requesting Daily Data
-
-
-interface Post{
-    id: number;
-    title: string;
-}
-
-interface NewsResponse{
-    posts: Post[];
-}
-
-function fetchJSON<ResponseData>(url: string): Promise<ResponseData>{
-    return new Promise ((resolve, reject) => {
-        const request = http.get(url, (res) => {
-            const {statusCode} = res;
-            let raw = ''
-
-            if (statusCode && (statusCode < 200 || statusCode >= 300)){
-                res.resume();
-                reject(new Error (`Request to ${url} failed with status code ${statusCode}`));
-                return;
+async function geocodeCity(
+  city: string
+): Promise<{ lat: number; lon: number } | { error: string }> {
+  return new Promise((resolve, reject) => {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+      city
+    )}`;
+    const options = {
+      headers: {
+        "User-Agent": "WeatherDashboard/1.0",
+      },
+    };
+    http
+      .get(url, options, (res) => {
+        let data = "";
+        res.on("data", (chunk) => {
+          data += chunk;
+        });
+        res.on("end", () => {
+          try {
+            const results = JSON.parse(data);
+            if (results.length > 0) {
+              const lat = parseFloat(results[0].lat);
+              const lon = parseFloat(results[0].lon);
+              resolve({ lat, lon });
+            } else {
+              resolve({ error: `Error: Location "${city}" not found` });
             }
-
-            res.setEncoding('utf8');
-            res.on('data', (chunk) => {
-                raw += chunk
-            });
-            res.on('end', () => {
-                try{
-                    resolve(JSON.parse(raw) as ResponseData);
-                }catch (err){
-                    reject(new Error (`Failed to parse JSON from ${url}: ${(err as Error).message}`))
-                }
-            });
+          } catch (parseError) {
+            resolve({ error: "Error: Failed to parse geocoding response" });
+          }
         });
-
-        request.on('error', (err) => {
-            reject(new Error(`Network error while requesting ${url}: ${err.message}`))
+      })
+      .on("error", (err) => {
+        resolve({
+          error: `Error: Geocoding service unavailable - ${err.message}`,
         });
-    });
+      });
+  });
 }
 
-function fetchWeather(): Promise<WeatherResponse>{
-    return fetchJSON<WeatherResponse>(WEATHER_URL);
+// Refactor Promise code to use async/await
+export async function fetchWeatherData(
+  city: string
+): Promise<{ data: any; cityName: string; error?: string }> {
+  const coords = await geocodeCity(city);
+  if ("error" in coords) {
+    return { data: null, cityName: city, error: coords.error };
+  }
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current_weather=true`;
+  return new Promise((resolve, reject) => {
+    http
+      .get(url, (res) => {
+        let data = "";
+        res.on("data", (chunk) => {
+          data += chunk;
+        });
+        res.on("end", () => {
+          try {
+            resolve({ data: JSON.parse(data), cityName: city });
+          } catch (parseError) {
+            resolve({
+              data: null,
+              cityName: city,
+              error: "Error: Failed to parse weather data",
+            });
+          }
+        });
+      })
+      .on("error", (err) => {
+        resolve({
+          data: null,
+          cityName: city,
+          error: `Error: Weather service unavailable - ${err.message}`,
+        });
+      });
+  });
+}
+export async function fetchNews(): Promise<any> {
+  const url = `https://dummyjson.com/posts`;
+  return new Promise((resolve, reject) => {
+    http
+      .get(url, (res) => {
+        let data = "";
+        res.on("data", (chunk) => {
+          data += chunk;
+        });
+        res.on("end", () => {
+          resolve(JSON.parse(data));
+        });
+      })
+      .on("error", (err) => {
+        console.error(err);
+        reject(err);
+      });
+  });
 }
 
-function fetchNews(): Promise<NewsResponse>{
-    return fetchJSON<NewsResponse>(NEWS_URL);
-}
-
-function displayResults(label: string, weather: WeatherResponse, news: NewsResponse): void{
-    console.log(`\n========== ${label} ===========`);
-    console.log(
-        `Current temperature: ${weather.current_weather.temperature}°C, wind ${weather.current_weather.windspeed} km/h`
-    );
-    console.log('Latest headlines: ');
-
-    try{
-    
-    news?.posts
-       ?.slice(0, 5)
-       .map((post, i) => `${i + 1}. ${post.title}`)
-       .forEach((item) => console.log(item));
-    }catch (error){
-    
-    console.log(`${'='.repeat(label.length + 12)}\n`);
+// Example usage:
+async function displayData() {
+  try {
+    const city = process.argv[2] || "Durban";
+    const result = await fetchWeatherData(city);
+    if (result.error) {
+      console.log(result.error);
+    } else if (result.data) {
+      const weather = result.data.current_weather;
+      console.log(
+        `Weather in ${result.cityName}:\nTemperature: ${weather.temperature}°C\nWindspeed: ${weather.windspeed} km/h\nTime: ${weather.time}`
+      );
+    } else {
+      console.log(`Error: Could not fetch weather data for ${result.cityName}`);
     }
-}
-
-function displayError(context: string, error: unknown): void{
-    const message = error instanceof Error ? error.message : String(error);
-    console.error(`[ERROR] (${context}) ${message}`)
-}
-
-async function runSequential(): Promise<void>{
-    console.log(`[Sequential await] Fetching weather, then news...`);
-    try{
-        const weather = await fetchWeather();
-        const news = await fetchNews();
-        displayResults('SEQUENTIAL ASYNC/AWAIT', weather, news);
-    }catch(err){
-        displayError('sequential', err);
+    const newsData = await fetchNews();
+    if (newsData && newsData.posts) {
+      console.log("News Headlines:");
+      newsData.posts.slice(0, 4).forEach((post: any, index: number) => {
+        console.log(`${index + 1}. ${post.title}`);
+      });
+    } else {
+      console.log("Error: Failed to fetch news data");
     }
+  } catch (error) {
+    console.error("Error:", error instanceof Error ? error.message : error);
+  }
 }
 
-async function runConcurrent(): Promise<void>{
-    console.log('[Promise.all + await] Fetching weather + news concurrently...');
-    try{
-        const [weather, news] = await Promise.all([fetchWeather(), fetchNews()]);
-        displayResults(' CONCURRENT ASYNC/AWAIT (Promise.all)', weather, news);
-    }catch (err){
-        displayError('Concurrent', err);
-    }
-}
-
-async function runRace(): Promise<void>{
-    console.log('[Promise.race + await] Racing weather vs news....');
-    try{
-    
-    const winner = await Promise.race([
-        fetchWeather().then((data) => ({ source: 'weather', data})),
-        fetchNews().then((data) => ({ source: 'news', data})),
-    ]);
-    console.log('\n====== PROMISE.RACE RESULTS (ASYNC/AWAIT) =======');
-    console.log(`Fatest response came from: ${winner.source}`);
-    console.log('=================================================')
-
-    }catch (err){
-        displayError('Race', err)
-    }
-}
-
-async function main(): Promise<void>{
-    await runSequential();
-    await runConcurrent();
-    await runRace();
-}
-
-main();
+displayData();
