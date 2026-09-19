@@ -5,9 +5,9 @@
   "description": "<img src=\"https://socialify.git.ci/siyamthandagwamanda/CodeTribe_Async_Weather_News_Dashboard/image?language=1&owner=1&name=1&stargazers=1&theme=Light\" alt=\"CodeTribe_Async_Weather_News_Dashboard\" width=\"640\" height=\"320\" />",
   "main": "index.js",
   "scripts": {
-    "callback": "ts-node src/callbackVersion.ts",
-    "promise": "ts-node src/promiseVersion.ts",
-    "asyncAwait": "ts-node src/asyncAwaitVersion.ts",
+    "callback": "tsc src/callbackVersion.ts",
+    "promise": "tsc src/promiseVersion.ts",
+    "asyncAwait": "tsc src/asyncAwaitVersion.ts",
     "build": "tsc"
   },
   "keywords": [],
