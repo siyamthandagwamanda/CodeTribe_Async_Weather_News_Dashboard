@@ -2,12 +2,12 @@
   "name": "codetribe-async-weather-news-dashboard",
   "version": "1.0.0",
   "type": "module",
-  "description": "<img src=\"https://socialify.git.ci/siyamthandagwamanda/CodeTribe_Async_Weather_News_Dashboard/image?language=1&owner=1&name=1&stargazers=1&theme=Light\" alt=\"CodeTribe_Async_Weather_News_Dashboard\" width=\"640\" height=\"320\" />",
-  "main": "index.js",
+  "description": "Async weather and news dashboard demonstrating callbacks, promises and async/await in TypeScript",
   "scripts": {
-    "callback": "tsc src/callbackVersion.ts",
-    "promise": "tsc src/promiseVersion.ts",
-    "asyncAwait": "tsc src/asyncAwaitVersion.ts",
+    "callback": "tsx src/callbackVersion.ts",
+    "promise": "tsx src/promiseVersion.ts",
+    "asyncAwait": "tsx src/asyncAwaitVersion.ts",
+    "typecheck": "tsc --noEmit",
     "build": "tsc"
   },
   "keywords": [],
@@ -16,7 +16,7 @@
   "devDependencies": {
     "@types/node": "^22.20.4",
     "nodemon": "^3.1.14",
-    "ts-node": "^10.9.2",
-    "typescript": "^.0.2"
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2"
   }
 }
